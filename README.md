@@ -16,6 +16,7 @@
 - 🌙 **Dark Mode** - Beautiful light and dark themes
 - 📱 **Mobile-First** - Responsive design optimized for all devices
 - 🇭🇰 **HKD Currency** - Formatted for Hong Kong Dollar (HK$)
+- 🐳 **Docker Ready** - Full Docker and Docker Compose support
 
 ## 🏗️ Architecture
 
@@ -42,18 +43,58 @@ spendora/
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Option 1: Docker (Recommended)
 
-- Node.js 20+
-- Bun (recommended) or npm
-- PostgreSQL database (Neon, Supabase, Railway, or local)
-
-### Installation
+The fastest way to get started - everything runs in containers!
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd spendora
+git clone https://github.com/edwcheng/Spendora.git
+cd Spendora
+
+# Start development environment
+make dev
+
+# Or using the shell script
+bash docker-start.sh dev
+```
+
+**That's it!** 🎉
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:3001/api |
+| API Docs (Swagger) | http://localhost:3001/api/docs |
+| Database Admin (Adminer) | http://localhost:8080 |
+
+#### Docker Commands
+
+```bash
+make dev       # Start development environment (hot reload)
+make prod      # Start production environment
+make stop      # Stop all containers
+make clean     # Remove all containers and volumes
+make logs      # View container logs
+make seed      # Seed database with default categories
+make db        # Open Prisma Studio
+make ps        # Show running containers
+```
+
+### Option 2: Local Development
+
+#### Prerequisites
+
+- Node.js 20+
+- Bun (recommended) or npm
+- PostgreSQL database
+
+#### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/edwcheng/Spendora.git
+cd Spendora
 
 # Install dependencies
 bun install
@@ -65,6 +106,7 @@ cp backend/.env.example backend/.env
 # Generate Prisma client and push schema
 bun run db:generate
 bun run db:push
+bun run db:seed
 
 # Start development servers
 bun run dev
@@ -79,6 +121,46 @@ DATABASE_URL="postgresql://user:password@localhost:5432/spendora?schema=public"
 JWT_SECRET="your-super-secret-jwt-key-here"
 JWT_EXPIRES_IN="7d"
 FRONTEND_URL="http://localhost:5173"
+```
+
+## 🐳 Docker Configuration
+
+### Services
+
+| Service | Port | Description |
+|---------|------|-------------|
+| `frontend` | 5173 (dev) / 3000 (prod) | Vue 3 application |
+| `backend` | 3001 | NestJS API |
+| `postgres` | 5432 | PostgreSQL database |
+| `adminer` | 8080 | Database admin UI (dev only) |
+
+### Development vs Production
+
+```bash
+# Development (hot reload, Adminer, debug tools)
+make dev
+
+# Production (optimized builds, nginx)
+make prod
+```
+
+### Docker Files Structure
+
+```
+spendora/
+├── docker-compose.yml          # Production config
+├── docker-compose.dev.yml      # Development overrides
+├── docker-start.sh             # Quick start script
+├── Makefile                    # Convenient commands
+├── backend/
+│   ├── Dockerfile              # Production build
+│   ├── Dockerfile.dev          # Development build
+│   └── .dockerignore
+└── frontend/
+    ├── Dockerfile              # Production (nginx)
+    ├── Dockerfile.dev          # Development build
+    ├── nginx.conf              # Nginx configuration
+    └── .dockerignore
 ```
 
 ## 📦 Tech Stack
@@ -103,22 +185,27 @@ FRONTEND_URL="http://localhost:5173"
 - **JWT** - JSON Web Tokens
 - **Swagger** - API documentation
 
+### Infrastructure
+- **Docker** - Containerization
+- **Nginx** - Frontend server (production)
+- **Adminer** - Database management UI
+
 ## 🌐 API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/auth/register` | Register new user |
-| POST | `/auth/login` | Login user |
-| GET | `/auth/profile` | Get current user |
-| GET | `/expenses` | List expenses (paginated) |
-| POST | `/expenses` | Create expense |
-| PATCH | `/expenses/:id` | Update expense |
-| DELETE | `/expenses/:id` | Delete expense |
-| GET | `/categories` | List categories |
-| POST | `/categories` | Create custom category |
-| GET | `/summary` | Get spending summary |
-| GET | `/export/csv` | Export expenses as CSV |
-| POST | `/expenses/agent` | AI agent endpoint (protected) |
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login user |
+| GET | `/api/auth/profile` | Get current user |
+| GET | `/api/expenses` | List expenses (paginated) |
+| POST | `/api/expenses` | Create expense |
+| PATCH | `/api/expenses/:id` | Update expense |
+| DELETE | `/api/expenses/:id` | Delete expense |
+| GET | `/api/categories` | List categories |
+| POST | `/api/categories` | Create custom category |
+| GET | `/api/summary` | Get spending summary |
+| GET | `/api/export/csv` | Export expenses as CSV |
+| POST | `/api/expenses/agent` | AI agent endpoint (protected) |
 
 API Documentation: `http://localhost:3001/api/docs` (Swagger)
 
@@ -126,32 +213,12 @@ API Documentation: `http://localhost:3001/api/docs` (Swagger)
 
 ### Backend (Serverless)
 
-1. **Configure `vercel.json`** for serverless deployment:
-
-```json
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend/src/main.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/src/main.ts"
-    }
-  ]
-}
-```
-
-2. **Set environment variables** in Vercel dashboard:
+1. Set environment variables in Vercel dashboard:
    - `DATABASE_URL`
    - `JWT_SECRET`
    - `FRONTEND_URL`
 
-3. **Deploy**:
+2. Deploy:
    ```bash
    vercel --prod
    ```
@@ -159,10 +226,7 @@ API Documentation: `http://localhost:3001/api/docs` (Swagger)
 ### Frontend (Static)
 
 1. Update `frontend/.env.production` with backend URL
-2. Deploy via Vercel's auto-detection or:
-   ```bash
-   cd frontend && vercel --prod
-   ```
+2. Deploy via Vercel's auto-detection
 
 ### Database Options
 

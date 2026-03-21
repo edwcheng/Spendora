@@ -1,0 +1,31 @@
+# Backend Development Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install bun
+RUN npm install -g bun
+
+# Copy package files
+COPY package.json bun.lockb* ./
+
+# Install dependencies
+RUN bun install --frozen-lockfile
+
+# Copy prisma schema
+COPY prisma ./prisma
+
+# Generate Prisma client
+RUN bun run db:generate
+
+# Copy source files
+COPY . .
+
+# Set environment
+ENV NODE_ENV=development
+ENV PORT=3001
+
+EXPOSE 3001
+
+# Start in development mode with hot reload
+CMD ["bun", "run", "dev"]

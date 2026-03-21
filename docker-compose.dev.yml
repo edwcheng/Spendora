@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Backend in development mode
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: spendora-backend-dev
+    environment:
+      DATABASE_URL: postgresql://spendora:spendora_secret@postgres:5432/spendora?schema=public
+      JWT_SECRET: dev-jwt-secret-not-for-production
+      JWT_EXPIRES_IN: 7d
+      FRONTEND_URL: http://localhost:5173
+      NODE_ENV: development
+      PORT: 3001
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+    ports:
+      - "3001:3001"
+    command: bun run dev
+
+  # Frontend in development mode
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: spendora-frontend-dev
+    environment:
+      VITE_API_URL: http://localhost:3001/api
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/public:/app/public
+    ports:
+      - "5173:5173"
+    command: bun run dev --host
+
+  # Database admin (optional)
+  adminer:
+    image: adminer
+    container_name: spendora-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres

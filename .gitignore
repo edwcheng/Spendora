@@ -47,3 +47,7 @@ backend/prisma/*.db-journal
 # Misc
 *.pem
 .vercel
+
+# Private notes (never commit)
+.private_notes
+*.private
