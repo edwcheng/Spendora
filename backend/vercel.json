@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "cd .. && bun install && bun run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@3"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/main"
+    }
+  ]
+}

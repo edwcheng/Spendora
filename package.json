@@ -1,0 +1,30 @@
+{
+  "name": "spendora",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spendora - Personal Expense Tracker",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:frontend": "turbo run dev --filter=@spendora/frontend",
+    "dev:backend": "turbo run dev --filter=@spendora/backend",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:generate": "turbo run db:generate --filter=@spendora/backend",
+    "db:push": "turbo run db:push --filter=@spendora/backend",
+    "db:migrate": "turbo run db:migrate --filter=@spendora/backend",
+    "db:studio": "turbo run db:studio --filter=@spendora/backend"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0"
+  },
+  "packageManager": "bun@1.1.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

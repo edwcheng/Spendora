@@ -1,0 +1,97 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts,jsx,tsx}",
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#10b981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
+          950: '#022c22',
+        },
+        brand: {
+          light: '#34d399',
+          DEFAULT: '#10b981',
+          dark: '#059669',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+        'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+      },
+      borderRadius: {
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+      },
+    },
+  },
+  plugins: [
+    require('daisyui'),
+  ],
+  daisyui: {
+    themes: [
+      {
+        spendora: {
+          "primary": "#10b981",
+          "primary-content": "#ffffff",
+          "secondary": "#6366f1",
+          "secondary-content": "#ffffff",
+          "accent": "#f59e0b",
+          "accent-content": "#ffffff",
+          "neutral": "#1f2937",
+          "neutral-content": "#f9fafb",
+          "base-100": "#ffffff",
+          "base-200": "#f3f4f6",
+          "base-300": "#e5e7eb",
+          "base-content": "#1f2937",
+          "info": "#3b82f6",
+          "info-content": "#ffffff",
+          "success": "#22c55e",
+          "success-content": "#ffffff",
+          "warning": "#f59e0b",
+          "warning-content": "#1f2937",
+          "error": "#ef4444",
+          "error-content": "#ffffff",
+        },
+        spendoraDark: {
+          "primary": "#10b981",
+          "primary-content": "#ffffff",
+          "secondary": "#818cf8",
+          "secondary-content": "#ffffff",
+          "accent": "#fbbf24",
+          "accent-content": "#1f2937",
+          "neutral": "#111827",
+          "neutral-content": "#f9fafb",
+          "base-100": "#1f2937",
+          "base-200": "#111827",
+          "base-300": "#0f172a",
+          "base-content": "#f9fafb",
+          "info": "#60a5fa",
+          "info-content": "#ffffff",
+          "success": "#4ade80",
+          "success-content": "#1f2937",
+          "warning": "#fbbf24",
+          "warning-content": "#1f2937",
+          "error": "#f87171",
+          "error-content": "#ffffff",
+        },
+      },
+    ],
+    darkTheme: "spendoraDark",
+  },
+}
