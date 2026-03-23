@@ -1,162 +1,131 @@
-# Spendora - GitHub Repository Information
+# 🚨 CRITICAL: Read This First
 
-> ⚠️ **Important**: Keep this file for future sessions reference
+> ⚠️ This file prevents common mistakes. READ BEFORE ANY GIT OPERATIONS!
 
-## Repository Details
+## ⚡ Quick Reference
 
-| Property | Value |
-|----------|-------|
-| **Repository Name** | Spendora |
-| **Owner** | edwcheng |
-| **GitHub URL** | https://github.com/edwcheng/Spendora |
-| **Clone URL (HTTPS)** | https://github.com/edwcheng/Spendora.git |
-| **Clone URL (SSH)** | git@github.com:edwcheng/Spendora.git |
-| **Main Branch** | main |
-| **Visibility** | Public |
-
-## Local Paths
-
-| Path | Description |
-|------|-------------|
-| **Project Root** | `/home/z/my-project/spendora` |
-| **Frontend** | `/home/z/my-project/spendora/frontend` |
-| **Backend** | `/home/z/my-project/spendora/backend` |
-| **Prisma Schema** | `/home/z/my-project/spendora/backend/prisma/schema.prisma` |
-
-## Authentication
-
-> 🔐 **Note**: Ask user @edwcheng for GitHub token when needed for push operations
-
-## Quick Commands
-
-### Docker (Recommended)
-```bash
-# Navigate to project
-cd /home/z/my-project/spendora
-
-# Development environment (hot reload)
-make dev
-
-# Production environment
-make prod
-
-# Stop all containers
-make stop
-
-# View logs
-make logs
-
-# Clean up everything
-make clean
-```
-
-### Local Development (without Docker)
-
-### Git Operations
-```bash
-# Navigate to project
-cd /home/z/my-project/spendora
-
-# Check status
-git status
-
-# Pull latest changes
-git pull origin main
-
-# Push changes
-git add .
-git commit -m "your message"
-git push origin main
-```
-
-### Development
-```bash
-# Install dependencies
-bun install
-
-# Run both frontend and backend
-bun run dev
-
-# Run frontend only (port 5173)
-bun run dev:frontend
-
-# Run backend only (port 3001)
-bun run dev:backend
-
-# Database operations
-bun run db:generate   # Generate Prisma client
-bun run db:push       # Push schema to database
-bun run db:studio     # Open Prisma Studio
-```
-
-## Project Structure
-
-```
-spendora/
-├── package.json          # Monorepo root
-├── turbo.json           # Build orchestration
-├── README.md            # Documentation
-├── .gitignore
-│
-├── frontend/            # Vue 3 + Vite
-│   ├── src/
-│   │   ├── components/  # Vue components
-│   │   ├── views/       # Page views
-│   │   ├── stores/      # Pinia stores
-│   │   ├── router/      # Vue Router
-│   │   └── utils/       # Helpers
-│   └── package.json
-│
-└── backend/             # NestJS + Prisma
-    ├── src/
-    │   ├── modules/     # auth, expenses, categories, etc.
-    │   ├── common/      # Guards, decorators, filters
-    │   └── prisma/      # Prisma service
-    ├── prisma/
-    │   └── schema.prisma
-    └── package.json
-```
-
-## Environment Variables
-
-### Backend (.env)
-```env
-DATABASE_URL="postgresql://user:password@host:5432/spendora"
-JWT_SECRET="your-jwt-secret"
-JWT_EXPIRES_IN="7d"
-FRONTEND_URL="http://localhost:5173"
-AI_AGENT_API_KEY="your-api-key"  # Optional
-```
-
-### Frontend (.env)
-```env
-VITE_API_URL=http://localhost:3001/api
-```
-
-## API Endpoints
-
-| Endpoint | Description |
-|----------|-------------|
-| `POST /api/auth/register` | Register user |
-| `POST /api/auth/login` | Login |
-| `GET /api/auth/profile` | Get profile |
-| `GET /api/expenses` | List expenses |
-| `POST /api/expenses` | Create expense |
-| `PATCH /api/expenses/:id` | Update expense |
-| `DELETE /api/expenses/:id` | Delete expense |
-| `GET /api/categories` | List categories |
-| `POST /api/categories` | Create category |
-| `GET /api/summary` | Spending summary |
-| `GET /api/export/csv` | Export CSV |
-| `POST /api/expenses/agent` | AI agent (API key) |
-| `GET /api/docs` | Swagger documentation |
-
-## Tech Stack
-
-- **Frontend**: Vue 3, Vite, TypeScript, Tailwind CSS, daisyUI, Chart.js, Pinia, TanStack Query
-- **Backend**: NestJS, Prisma, PostgreSQL, Passport.js, JWT, Swagger
-- **Build**: Turbo (monorepo), Bun
-- **Deployment**: Vercel (serverless ready)
+| Item | Value | Notes |
+|------|-------|-------|
+| **Working Directory** | `/home/z/my-project/spendora` | ALWAYS `cd` here first! |
+| **Branch** | `main` | NOT master! |
+| **Token File** | `/home/z/my-project/.private_notes` | Read for push access |
 
 ---
-*Last updated: 2024-03-22*
+
+## 🛑 Common Mistakes to Avoid
+
+### ❌ Mistake 1: Wrong Directory
+```bash
+# WRONG - You're in parent directory
+pwd
+# /home/z/my-project
+
+# CORRECT - Always work in spendora directory
+cd /home/z/my-project/spendora
+pwd
+# /home/z/my-project/spendora
+```
+
+### ❌ Mistake 2: Wrong Branch
+```bash
+# WRONG - This repo uses master
+git branch
+# * master
+
+# CORRECT - Spendora uses main
+cd /home/z/my-project/spendora
+git branch
+# * main
+```
+
+### ❌ Mistake 3: Parent Directory Has Extra .git
+```bash
+# If you see this, you're in the WRONG directory:
+git status
+# On branch master  <-- WRONG! Should be main
+
+# Solution:
+cd /home/z/my-project/spendora
+git status
+# On branch main  <-- CORRECT!
+```
+
+---
+
+## ✅ Correct Workflow
+
+### Before ANY Git Operation:
+```bash
+# Step 1: Go to correct directory
+cd /home/z/my-project/spendora
+
+# Step 2: Verify you're on main branch
+git branch
+# Should show: * main
+
+# Step 3: If pushing, read token
+cat /home/z/my-project/.private_notes
+```
+
+### Git Commands Template:
+```bash
+# ALWAYS start with cd!
+cd /home/z/my-project/spendora
+
+# Then do your git work
+git status
+git add -A
+git commit -m "your message"
+git push https://YOUR_TOKEN@github.com/edwcheng/Spendora.git main
+```
+
+### Or use git -C (safer):
+```bash
+# This explicitly specifies the directory
+git -C /home/z/my-project/spendora status
+git -C /home/z/my-project/spendora add -A
+git -C /home/z/my-project/spendora commit -m "message"
+git -C /home/z/my-project/spendora push https://TOKEN@github.com/edwcheng/Spendora.git main
+```
+
+---
+
+## 🔍 Health Check Commands
+
+Run these if something seems wrong:
+
+```bash
+# Check you're in the right place
+pwd
+# Expected: /home/z/my-project/spendora
+
+# Check the branch
+git branch
+# Expected: * main
+
+# Check remote
+git remote -v
+# Expected: origin https://github.com/edwcheng/Spendora.git
+
+# Check for uncommitted changes
+git status
+# Expected: nothing to commit, working tree clean
+```
+
+---
+
+## 🧹 Cleanup If Broken
+
+If parent directory accidentally has a `.git` folder:
+
+```bash
+# Remove the extra git repo (NOT the spendora one!)
+rm -rf /home/z/my-project/.git
+
+# Verify spendora still works
+git -C /home/z/my-project/spendora status
+```
+
+---
+
+*Last updated: 2024-03-23*
