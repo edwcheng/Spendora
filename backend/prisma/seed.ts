@@ -15,24 +15,17 @@ const defaultCategories = [
 async function main() {
   console.log('Seeding default categories...');
 
-  for (const category of defaultCategories) {
-    await prisma.category.upsert({
-      where: {
-        name_userId: {
-          name: category.name,
-          userId: null,
-        },
-      },
-      update: {},
-      create: {
-        name: category.name,
-        icon: category.icon,
-        color: category.color,
-        isDefault: true,
-        userId: null,
-      },
-    });
-  }
+  // Use createMany with skipDuplicates for simpler handling
+  await prisma.category.createMany({
+    data: defaultCategories.map((category) => ({
+      name: category.name,
+      icon: category.icon,
+      color: category.color,
+      isDefault: true,
+      userId: null,
+    })),
+    skipDuplicates: true,
+  });
 
   console.log('Default categories seeded successfully!');
 }
