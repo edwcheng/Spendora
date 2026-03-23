@@ -1,6 +1,6 @@
 # Spendora Docker Makefile
 
-.PHONY: help dev prod stop clean logs seed db
+.PHONY: help dev prod stop clean logs seed db build ps
 
 help:
 	@echo "Spendora Docker Commands"
@@ -24,7 +24,7 @@ dev:
 	@sleep 5
 	docker-compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend bun run db:push
 	docker-compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend bun run db:seed
-	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d frontend
+	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d frontend adminer
 	@echo ""
 	@echo "✅ Development environment running!"
 	@echo "   Frontend:  http://localhost:5173"
