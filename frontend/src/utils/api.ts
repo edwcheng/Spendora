@@ -35,14 +35,21 @@ class ApiClient {
       headers,
     });
 
+    // Check content-type before attempting to parse
+    const contentType = response.headers.get('content-type');
+
     if (!response.ok) {
+      // Handle non-JSON error responses
+      if (!contentType?.includes('application/json')) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       const error = await response.json();
       throw new Error(error.message || 'An error occurred');
     }
 
     // Handle empty responses
     const text = await response.text();
-    return text ? JSON.parse(text) : null;
+    return text ? JSON.parse(text) : (null as unknown as T);
   }
 
   // Auth endpoints
