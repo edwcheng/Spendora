@@ -5,19 +5,22 @@ import type { Expense, Category, Summary, PaginatedResponse } from '@/types';
 import { computed } from 'vue';
 
 // Expense queries
+import { unref } from 'vue';
+
 export function useExpenses(page = 1, limit = 10) {
   const expenseStore = useExpenseStore();
   const dateRange = computed(() => expenseStore.getEffectiveDateRange());
+  const selectedCategoryId = computed(() => expenseStore.selectedCategoryId);
 
   return useQuery<PaginatedResponse<Expense>>({
-    queryKey: ['expenses', page, limit, dateRange, computed(() => expenseStore.selectedCategoryId)],
+    queryKey: ['expenses', page, limit, dateRange, selectedCategoryId],
     queryFn: () =>
       api.getExpenses({
-        page,
-        limit,
+        page: unref(page),
+        limit: unref(limit),
         startDate: dateRange.value.startDate,
         endDate: dateRange.value.endDate,
-        categoryId: expenseStore.selectedCategoryId || undefined,
+        categoryId: unref(expenseStore.selectedCategoryId) || undefined,
       }),
   });
 }
