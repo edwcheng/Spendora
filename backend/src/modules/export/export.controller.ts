@@ -3,6 +3,17 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { Response } from 'express';
 import { ExportService } from './export.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { IsDateString, IsOptional } from 'class-validator';
+
+class ExportQueryDto {
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+}
 
 @ApiTags('Export')
 @ApiBearerAuth()
@@ -16,16 +27,15 @@ export class ExportController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async exportCsv(
     @CurrentUser('sub') userId: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-    @Res() res?: Response,
+    @Query() query: ExportQueryDto,
+    @Res() res: Response,
   ) {
-    const csv = await this.exportService.exportToCsv(userId, startDate, endDate);
+    const csv = await this.exportService.exportToCsv(userId, query.startDate, query.endDate);
 
     const filename = `spendora-expenses-${new Date().toISOString().split('T')[0]}.csv`;
 
-    res?.setHeader('Content-Type', 'text/csv');
-    res?.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res?.send(csv);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
   }
 }

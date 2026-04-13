@@ -3,17 +3,33 @@ import {
   Post,
   Body,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 import { PrismaService } from '../../prisma/prisma.service';
+import { IsString, IsNumber, IsDateString, IsOptional, IsBoolean, Min } from 'class-validator';
 
 class AgentExpenseDto {
+  @IsString()
   userId: string;
+
+  @IsNumber()
+  @Min(0.01)
   amount: number;
+
+  @IsString()
   categoryId: string;
+
+  @IsDateString()
   date: string;
+
+  @IsOptional()
+  @IsString()
   note?: string;
+
+  @IsOptional()
+  @IsBoolean()
   isRecurring?: boolean;
 }
 
@@ -31,6 +47,7 @@ export class ExpensesAgentController {
   })
   @ApiResponse({ status: 201, description: 'Expense created by agent' })
   @ApiResponse({ status: 401, description: 'Invalid API key' })
+  @ApiResponse({ status: 404, description: 'User or category not found' })
   async createByAgent(@Body() dto: AgentExpenseDto) {
     // Verify user exists
     const user = await this.prisma.user.findUnique({
@@ -38,7 +55,7 @@ export class ExpensesAgentController {
     });
 
     if (!user) {
-      return { error: 'User not found', code: 404 };
+      throw new NotFoundException('User not found');
     }
 
     // Verify category
@@ -50,7 +67,7 @@ export class ExpensesAgentController {
     });
 
     if (!category) {
-      return { error: 'Category not found', code: 404 };
+      throw new NotFoundException('Category not found');
     }
 
     // Create expense

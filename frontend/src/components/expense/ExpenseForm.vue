@@ -27,7 +27,33 @@ const form = ref({
   isRecurring: props.expense?.isRecurring || false,
 });
 
+// Watch for prop changes (e.g., when switching between expenses to edit)
+watch(
+  () => props.expense,
+  (newExpense) => {
+    if (newExpense) {
+      form.value = {
+        amount: newExpense.amount,
+        categoryId: newExpense.categoryId,
+        date: formatDateForInput(newExpense.date),
+        note: newExpense.note || '',
+        isRecurring: newExpense.isRecurring || false,
+      };
+    } else {
+      form.value = {
+        amount: 0,
+        categoryId: '',
+        date: formatDateForInput(new Date()),
+        note: '',
+        isRecurring: false,
+      };
+    }
+  },
+);
+
 const loading = computed(() => createMutation.isPending.value || updateMutation.isPending.value);
+
+const errorMessage = ref<string | null>(null);
 
 const selectedCategory = computed(() =>
   categories.value?.find((c: Category) => c.id === form.value.categoryId)
@@ -42,14 +68,21 @@ async function handleSubmit() {
     isRecurring: form.value.isRecurring,
   };
 
-  if (isEditing.value && props.expense) {
-    await updateMutation.mutateAsync({ id: props.expense.id, data });
-  } else {
-    await createMutation.mutateAsync(data);
-  }
+  errorMessage.value = null;
 
-  emit('saved');
-  emit('close');
+  try {
+    if (isEditing.value && props.expense) {
+      await updateMutation.mutateAsync({ id: props.expense.id, data });
+    } else {
+      await createMutation.mutateAsync(data);
+    }
+
+    emit('saved');
+    emit('close');
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Failed to save expense. Please try again.';
+    errorMessage.value = msg;
+  }
 }
 
 function formatAmount() {
@@ -64,6 +97,14 @@ function formatAmount() {
       <h3 class="font-bold text-lg mb-4">
         {{ isEditing ? 'Edit Expense' : 'Add Expense' }}
       </h3>
+
+      <!-- Error alert -->
+      <div v-if="errorMessage" class="alert alert-error mb-4 text-sm">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <!-- Amount -->

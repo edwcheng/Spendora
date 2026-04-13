@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,7 +21,6 @@ import {
   UpdateExpenseDto,
   ExpenseQueryDto,
 } from './dto/expense.dto';
-import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('Expenses')
@@ -40,23 +38,20 @@ export class ExpensesController {
     return this.expensesService.create(userId, dto);
   }
 
+  @Get('recurring-total')
+  @ApiOperation({ summary: 'Get total of recurring expenses' })
+  @ApiResponse({ status: 200, description: 'Total recurring expenses' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  getRecurringTotal(@CurrentUser('sub') userId: string) {
+    return this.expensesService.getRecurringTotal(userId);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get all expenses (paginated)' })
   @ApiResponse({ status: 200, description: 'List of expenses' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  findAll(
-    @CurrentUser('sub') userId: string,
-    @Query() pagination: PaginationDto,
-    @Query() query: ExpenseQueryDto,
-  ) {
-    return this.expensesService.findAll(userId, pagination, query);
-  }
-
-  @Get('recurring-total')
-  @ApiOperation({ summary: 'Get total of recurring expenses' })
-  @ApiResponse({ status: 200, description: 'Total recurring expenses' })
-  getRecurringTotal(@CurrentUser('sub') userId: string) {
-    return this.expensesService.getRecurringTotal(userId);
+  findAll(@CurrentUser('sub') userId: string, @Query() query: ExpenseQueryDto) {
+    return this.expensesService.findAll(userId, query);
   }
 
   @Get(':id')

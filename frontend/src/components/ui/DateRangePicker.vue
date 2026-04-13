@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useExpenseStore } from '@/stores';
-import type { DateRangePreset } from '@/types';
+import type { DateRangePreset, DateRange } from '@/types';
 
 const expenseStore = useExpenseStore();
 
@@ -14,9 +14,21 @@ const presets: { value: DateRangePreset; label: string }[] = [
 ];
 
 const isCustom = computed(() => expenseStore.dateRangePreset === 'custom');
-const customRange = computed({
-  get: () => expenseStore.customDateRange,
-  set: (val) => val && expenseStore.setCustomDateRange(val),
+
+const customStartDate = computed({
+  get: () => expenseStore.customDateRange?.startDate || '',
+  set: (val) => {
+    const endDate = expenseStore.customDateRange?.endDate || val;
+    expenseStore.setCustomDateRange({ startDate: val, endDate } as DateRange);
+  },
+});
+
+const customEndDate = computed({
+  get: () => expenseStore.customDateRange?.endDate || '',
+  set: (val) => {
+    const startDate = expenseStore.customDateRange?.startDate || val;
+    expenseStore.setCustomDateRange({ startDate, endDate: val } as DateRange);
+  },
 });
 </script>
 
@@ -41,13 +53,13 @@ const customRange = computed({
     <div v-if="isCustom" class="flex gap-2 items-center">
       <input
         type="date"
-        v-model="customRange!.startDate"
+        v-model="customStartDate"
         class="input input-sm input-bordered touch-target"
       />
       <span class="text-base-content/60">to</span>
       <input
         type="date"
-        v-model="customRange!.endDate"
+        v-model="customEndDate"
         class="input input-sm input-bordered touch-target"
       />
     </div>

@@ -15,7 +15,7 @@ const expenseStore = useExpenseStore();
 const page = ref(1);
 const limit = ref(10);
 
-const { data: expensesData, isLoading, refetch } = useExpenses(page, limit);
+const { data: expensesData, isLoading } = useExpenses(page, limit);
 const { data: categories } = useCategories();
 const deleteMutation = useDeleteExpense();
 
@@ -42,8 +42,7 @@ function handleDeleteExpense(id: string) {
 
 function handleExport() {
   const dateRange = expenseStore.getEffectiveDateRange();
-  const url = api.getExportUrl(dateRange);
-  window.open(url, '_blank');
+  api.exportCsv(dateRange);
 }
 
 // Reset to page 1 when filters change

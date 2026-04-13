@@ -3,6 +3,7 @@ import {
   ConflictException,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/category.dto';
@@ -64,10 +65,27 @@ export class CategoriesService {
       throw new ForbiddenException('Access denied');
     }
 
-    await this.prisma.category.delete({
-      where: { id },
+    // Find a default category to reassign expenses to
+    const defaultCategory = await this.prisma.category.findFirst({
+      where: { isDefault: true },
+      orderBy: { name: 'asc' },
     });
 
-    return { message: 'Category deleted successfully' };
+    if (!defaultCategory) {
+      throw new BadRequestException('Cannot delete category: no default category available for reassignment');
+    }
+
+    // Reassign all expenses from this category to a default one, then delete
+    await this.prisma.$transaction([
+      this.prisma.expense.updateMany({
+        where: { categoryId: id },
+        data: { categoryId: defaultCategory.id },
+      }),
+      this.prisma.category.delete({
+        where: { id },
+      }),
+    ]);
+
+    return { message: 'Category deleted successfully', reassignedTo: defaultCategory.name };
   }
 }

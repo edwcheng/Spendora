@@ -38,8 +38,7 @@ function handleDeleteExpense(id: string) {
 
 function handleExport() {
   const dateRange = expenseStore.getEffectiveDateRange();
-  const url = api.getExportUrl(dateRange);
-  window.open(url, '_blank');
+  api.exportCsv(dateRange);
 }
 </script>
 

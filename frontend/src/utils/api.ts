@@ -22,9 +22,13 @@ class ApiClient {
     const token = this.getAuthToken();
 
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
       ...options.headers,
     };
+
+    // Only set Content-Type for requests with a body
+    if (options.body) {
+      (headers as Record<string, string>)['Content-Type'] = 'application/json';
+    }
 
     if (token) {
       (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
@@ -45,6 +49,11 @@ class ApiClient {
       }
       const error = await response.json();
       throw new Error(error.message || 'An error occurred');
+    }
+
+    // Handle blob responses (e.g., CSV export)
+    if (contentType?.includes('text/csv') || contentType?.includes('application/octet-stream')) {
+      return response.blob() as unknown as T;
     }
 
     // Handle empty responses
@@ -129,6 +138,10 @@ class ApiClient {
     await this.request(`/expenses/${id}`, { method: 'DELETE' });
   }
 
+  async getExpense(id: string): Promise<Expense> {
+    return this.request<Expense>(`/expenses/${id}`);
+  }
+
   // Category endpoints
   async getCategories(): Promise<Category[]> {
     return this.request<Category[]>('/categories');
@@ -154,14 +167,31 @@ class ApiClient {
     return this.request<Summary>(`/summary?${searchParams.toString()}`);
   }
 
-  // Export endpoints
-  getExportUrl(params: { startDate?: string; endDate?: string } = {}): string {
+  // Export endpoints - use blob download instead of URL with token
+  async exportCsv(params: { startDate?: string; endDate?: string } = {}): Promise<void> {
     const searchParams = new URLSearchParams();
     if (params.startDate) searchParams.set('startDate', params.startDate);
     if (params.endDate) searchParams.set('endDate', params.endDate);
 
-    const token = this.getAuthToken();
-    return `${API_BASE}/export/csv?${searchParams.toString()}&token=${token}`;
+    const response = await this.request<Blob>(`/export/csv?${searchParams.toString()}`, {
+      headers: {
+        'Accept': 'text/csv',
+      },
+    });
+
+    // Handle non-blob responses (error responses are JSON)
+    if (!(response instanceof Blob)) {
+      throw new Error('Failed to generate CSV export');
+    }
+
+    const url = URL.createObjectURL(response);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `spendora-expenses-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 }
 

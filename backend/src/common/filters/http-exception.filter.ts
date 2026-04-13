@@ -10,7 +10,7 @@ import { Request, Response } from 'express';
 
 interface ErrorResponse {
   statusCode: number;
-  message: string;
+  message: string | string[];
   error: string;
   timestamp: string;
   path: string;
@@ -26,7 +26,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error';
+    let message: string | string[] = 'Internal server error';
     let error = 'Internal Server Error';
 
     if (exception instanceof HttpException) {
@@ -45,12 +45,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         `Unhandled exception: ${exception.message}`,
         exception.stack,
       );
-      message = exception.message;
+      // Don't leak internal error messages to clients in production
+      if (process.env.NODE_ENV === 'production') {
+        message = 'Internal server error';
+      } else {
+        message = exception.message;
+      }
     }
 
     const errorResponse: ErrorResponse = {
       statusCode: status,
-      message: Array.isArray(message) ? message[0] : message,
+      message,
       error,
       timestamp: new Date().toISOString(),
       path: request.url,

@@ -2,11 +2,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsNumber,
-  IsDate,
   IsBoolean,
   IsOptional,
   IsDateString,
   Min,
+  Max,
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -68,7 +68,28 @@ export class UpdateExpenseDto {
   isRecurring?: boolean;
 }
 
+/**
+ * Combined query DTO for listing expenses.
+ * Merges pagination params (page, limit) with filter params
+ * (startDate, endDate, categoryId, isRecurring) into a single DTO
+ * to avoid forbidNonWhitelisted rejecting params that belong to the other DTO.
+ */
 export class ExpenseQueryDto {
+  @ApiPropertyOptional({ example: 1, minimum: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  page?: number = 1;
+
+  @ApiPropertyOptional({ example: 10, minimum: 1, maximum: 100 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(100)
+  limit?: number = 10;
+
   @ApiPropertyOptional({ example: '2024-03-01' })
   @IsOptional()
   @IsDateString()

@@ -4,12 +4,16 @@ import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import type { CategorySummary } from '@/types';
 import { formatCurrency, formatCurrencyShort } from '@/utils/format';
+import { useThemeStore } from '@/stores';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const props = defineProps<{
   data: CategorySummary[];
 }>();
+
+const themeStore = useThemeStore();
+const isDark = computed(() => themeStore.theme === 'spendoraDark');
 
 const chartData = computed(() => {
   const colors = props.data.map((c) => c.categoryColor || '#10b981');
@@ -19,14 +23,14 @@ const chartData = computed(() => {
       {
         data: props.data.map((c) => c.total),
         backgroundColor: colors,
-        borderColor: colors.map((c) => c),
+        borderColor: isDark.value ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.8)',
         borderWidth: 2,
       },
     ],
   };
 });
 
-const chartOptions = {
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -44,7 +48,7 @@ const chartOptions = {
       },
     },
   },
-};
+}));
 </script>
 
 <template>

@@ -13,12 +13,16 @@ import {
 } from 'chart.js';
 import type { MonthlyTrend } from '@/types';
 import { formatCurrencyShort } from '@/utils/format';
+import { useThemeStore } from '@/stores';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler);
 
 const props = defineProps<{
   data: MonthlyTrend[];
 }>();
+
+const themeStore = useThemeStore();
+const isDark = computed(() => themeStore.theme === 'spendoraDark');
 
 const chartData = computed(() => ({
   labels: props.data.map((d) => {
@@ -36,7 +40,7 @@ const chartData = computed(() => ({
       fill: true,
       tension: 0.4,
       pointBackgroundColor: '#10b981',
-      pointBorderColor: '#fff',
+      pointBorderColor: isDark.value ? '#1f2937' : '#ffffff',
       pointBorderWidth: 2,
       pointRadius: 4,
       pointHoverRadius: 6,
@@ -44,7 +48,7 @@ const chartData = computed(() => ({
   ],
 }));
 
-const chartOptions = {
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -62,18 +66,22 @@ const chartOptions = {
       beginAtZero: true,
       ticks: {
         callback: (value: number) => formatCurrencyShort(value),
+        color: isDark.value ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
       },
       grid: {
-        color: 'rgba(0, 0, 0, 0.05)',
+        color: isDark.value ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
       },
     },
     x: {
       grid: {
         display: false,
       },
+      ticks: {
+        color: isDark.value ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+      },
     },
   },
-};
+}));
 </script>
 
 <template>

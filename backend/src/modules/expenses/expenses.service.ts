@@ -3,13 +3,12 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma, PrismaService } from '../../prisma/prisma.service';
 import {
   CreateExpenseDto,
   UpdateExpenseDto,
   ExpenseQueryDto,
 } from './dto/expense.dto';
-import { PaginationDto, PaginatedResponseDto } from '../../common/dtos/pagination.dto';
 
 @Injectable()
 export class ExpensesService {
@@ -47,14 +46,13 @@ export class ExpensesService {
 
   async findAll(
     userId: string,
-    pagination: PaginationDto,
     query: ExpenseQueryDto,
-  ): Promise<PaginatedResponseDto<any>> {
-    const { page = 1, limit = 10 } = pagination;
+  ) {
+    const { page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
-    // Build where clause
-    const where: any = { userId };
+    // Build where clause using typed Prisma input
+    const where: Prisma.ExpenseWhereInput = { userId };
 
     if (query.startDate && query.endDate) {
       where.date = {

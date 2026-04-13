@@ -29,10 +29,21 @@ export function formatDate(date: Date | string): string {
   }).format(d);
 }
 
-// Date formatting for input
+// Date formatting for input (use local timezone, not UTC)
 export function formatDateForInput(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toISOString().split('T')[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// Helper to format a Date as YYYY-MM-DD in local timezone
+function toLocalDateString(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // Month/Year formatting
@@ -59,48 +70,49 @@ export function formatRelativeTime(date: Date | string): string {
   return `${Math.floor(days / 365)} years ago`;
 }
 
-// Get date range for presets
+// Get date range for presets (uses local timezone to avoid UTC offset issues)
 export function getDateRange(preset: string): { startDate: string; endDate: string } {
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   switch (preset) {
     case 'this_month': {
       const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
       const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       return {
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0],
+        startDate: toLocalDateString(startDate),
+        endDate: toLocalDateString(endDate),
       };
     }
     case 'last_3_months': {
       const startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
       const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       return {
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0],
+        startDate: toLocalDateString(startDate),
+        endDate: toLocalDateString(endDate),
       };
     }
     case 'last_6_months': {
       const startDate = new Date(now.getFullYear(), now.getMonth() - 5, 1);
       const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       return {
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0],
+        startDate: toLocalDateString(startDate),
+        endDate: toLocalDateString(endDate),
       };
     }
     case 'last_12_months': {
       const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
       const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       return {
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0],
+        startDate: toLocalDateString(startDate),
+        endDate: toLocalDateString(endDate),
       };
     }
-    default:
+    default: {
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       return {
-        startDate: today.toISOString().split('T')[0],
-        endDate: today.toISOString().split('T')[0],
+        startDate: toLocalDateString(today),
+        endDate: toLocalDateString(today),
       };
+    }
   }
 }

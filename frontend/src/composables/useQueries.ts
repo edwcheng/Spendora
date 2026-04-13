@@ -28,7 +28,7 @@ export function useExpenses(page = 1, limit = 10) {
 export function useExpense(id: string) {
   return useQuery<Expense>({
     queryKey: ['expense', id],
-    queryFn: () => api.getExpenses({}).then((res) => res.data.find((e) => e.id === id) as Expense),
+    queryFn: () => api.getExpense(id),
     enabled: !!id,
   });
 }

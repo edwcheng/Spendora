@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onBeforeUnmount } from 'vue';
 import { formatCurrency, formatDate, formatRelativeTime } from '@/utils/format';
 import type { Expense } from '@/types';
 
@@ -14,22 +14,36 @@ const emit = defineEmits<{
 
 const showActions = ref(false);
 const confirmingDelete = ref(false);
+let deleteTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function handleDelete() {
   if (confirmingDelete.value) {
     emit('delete', props.expense.id);
+    clearDeleteTimeout();
   } else {
     confirmingDelete.value = true;
-    setTimeout(() => {
+    deleteTimeout = setTimeout(() => {
       confirmingDelete.value = false;
+      deleteTimeout = null;
     }, 3000);
   }
 }
+
+function clearDeleteTimeout() {
+  if (deleteTimeout) {
+    clearTimeout(deleteTimeout);
+    deleteTimeout = null;
+  }
+}
+
+onBeforeUnmount(() => {
+  clearDeleteTimeout();
+});
 </script>
 
 <template>
   <div
-    class="flex items-center gap-4 p-4 bg-base-100 rounded-xl border border-base-200 hover:border-primary/30 transition-colors"
+    class="flex items-center gap-4 p-4 bg-base-100 rounded-xl border border-base-200 hover:border-primary/30 transition-colors group"
     @mouseenter="showActions = true"
     @mouseleave="showActions = false; confirmingDelete = false"
   >
@@ -71,11 +85,8 @@ function handleDelete() {
       <p class="font-bold text-lg text-error">-{{ formatCurrency(expense.amount) }}</p>
     </div>
 
-    <!-- Actions -->
-    <div
-      v-show="showActions"
-      class="flex gap-1 shrink-0"
-    >
+    <!-- Actions: always visible on mobile, hover-visible on desktop -->
+    <div class="flex gap-1 shrink-0 max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
       <button
         @click="emit('edit', expense)"
         class="btn btn-ghost btn-sm btn-circle touch-target"
